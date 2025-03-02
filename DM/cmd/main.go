@@ -16,15 +16,28 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	// Choose a test URL
-	testURL := utils.TestURLs["10MB_OVH"] // Select desired file size
+	
+	fmt.Println("🚀 Starting concurrent downloads...")
 
-	fmt.Println("Starting download:", testURL)
+	// Initialize the worker pool
+	workerPool := download.NewWorkerPool(conf.MaxConcurrentDownloads)
+	workerPool.Start()
 
-	filePath, err := download.DownloadFile(testURL, conf.DownloadDirectory)
-	if err != nil {
-		log.Fatalf("Download failed: %v", err)
+	// Test URLs (you can modify this list)
+	testURLs := []string{
+		utils.TestURLs["10MB_OVH"],
+		utils.TestURLs["100MB_OVH"],
+		// utils.TestURLs["10MB_OVH"],
+		// utils.TestURLs["1MB"],
 	}
 
-	fmt.Println("✅ Download completed:", filePath)
+	// Queue downloads
+	for _, url := range testURLs {
+		workerPool.AddJob(url, conf.DownloadDirectory)
+	}
+
+	// Wait for all downloads to complete
+	workerPool.Wait()
+
+	fmt.Println("🎉 All downloads completed!")
 }
