@@ -4,18 +4,27 @@ import (
 	"fmt"
 	"log"
 
-	"DM/internal/config"
+	"DM/DM/internal/config"
+	"DM/DM/internal/download"
+	"DM/DM/internal/utils" // Import the test URLs
 )
 
 func main() {
-	// Load config from file or environment variables
+	// Load configuration
 	conf, err := config.LoadConfig("internal/config/config.yaml")
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	// Print loaded configuration
-	config.PrintConfig(conf)
+	// Choose a test URL
+	testURL := utils.TestURLs["10MB_OVH"] // Select desired file size
 
-	fmt.Println("🚀 Download Manager Starting...")
+	fmt.Println("Starting download:", testURL)
+
+	filePath, err := download.DownloadFile(testURL, conf.DownloadDirectory)
+	if err != nil {
+		log.Fatalf("Download failed: %v", err)
+	}
+
+	fmt.Println("✅ Download completed:", filePath)
 }
