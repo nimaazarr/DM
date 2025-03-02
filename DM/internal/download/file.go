@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 )
 
-// DownloadFile downloads a file from a given URL and saves it to the specified directory.
-func DownloadFile(url string, destDir string) (string, error) {
+// DownloadFile downloads a file from a given URL (with speed limit) and saves it to the specified directory.
+func DownloadFile(url string, destDir string, speedLimitKbps int) (string, error) {
 	// Extract file name from URL
 	fileName := filepath.Base(url)
 	destPath := filepath.Join(destDir, fileName)
@@ -38,8 +38,14 @@ func DownloadFile(url string, destDir string) (string, error) {
 		return "", fmt.Errorf("bad status: %s", resp.Status)
 	}
 
+	// Apply speed limit if set
+	var reader io.Reader = resp.Body
+	if speedLimitKbps > 0 {
+		reader = NewSpeedLimiter(resp.Body, speedLimitKbps)
+	}
+
 	// Write file in chunks
-	_, err = io.Copy(outFile, resp.Body)
+	_, err = io.Copy(outFile, reader)
 	if err != nil {
 		return "", fmt.Errorf("failed to write file: %v", err)
 	}

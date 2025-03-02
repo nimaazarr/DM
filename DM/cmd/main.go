@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
+	// "time"
 
 	"DM/DM/internal/config"
 	"DM/DM/internal/download"
@@ -28,7 +28,7 @@ func main() {
 	// Test URLs (you can modify this list)
 	testURLs := []string{
 		utils.TestURLs["10MB_OVH"],
-		utils.TestURLs["100MB_OVH"],
+		utils.TestURLs["10MB_OVH"],
 		// utils.TestURLs["10MB_OVH"],
 		// utils.TestURLs["1MB"],
 	}
@@ -42,19 +42,8 @@ func main() {
 		queue.StartNextDownload()
 	}
 
-	// List active downloads
-	queue.ListDownloads()
-
-	// Simulate a pause/resume cycle
-	time.Sleep(2 * time.Second)
-	queue.PauseDownload(testURLs[1])
-
-	time.Sleep(2 * time.Second)
-	queue.ResumeDownload(testURLs[1])
-
 	// Wait for all downloads to complete
 	workerPool.Wait()
 
-	fmt.Println("🎉 All downloads completed!")
-	queue.ListDownloads()
+	fmt.Println("🎉 All downloads completed with speed control!")
 }

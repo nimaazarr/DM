@@ -5,8 +5,8 @@ import (
 	"log"
 	"sync"
 	// "time"
-
-	// "DM/DM/internal/config"
+	
+	"DM/DM/internal/config"
 )
 
 // DownloadJob represents a download task.
@@ -37,13 +37,16 @@ func (wp *WorkerPool) Start() {
 	}
 }
 
-// worker executes download jobs.
+// worker executes download jobs with speed limiting.
 func (wp *WorkerPool) worker(workerID int) {
 	for job := range wp.JobQueue {
 		fmt.Printf("🔄 Worker %d: Downloading %s\n", workerID, job.URL)
 
-		// Perform file download
-		_, err := DownloadFile(job.URL, job.DestPath)
+		// Get speed limit from config
+		conf, _ := config.LoadConfig("internal/config/config.yaml")
+
+		// Perform file download with speed control
+		_, err := DownloadFile(job.URL, job.DestPath, conf.SpeedLimitKbps)
 		if err != nil {
 			log.Printf("❌ Worker %d: Failed to download %s: %v\n", workerID, job.URL, err)
 		} else {
